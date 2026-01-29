@@ -9,19 +9,15 @@ output_file="$SCRIPT_DIR/../.frontend.env"
 # Check if the file exists
 if [ -f "$output_file" ]; then
   # Prompt the user
-  read -p "The file $output_file already exists. Do you want to overwrite it? (y/n): " choice
+  read -p "The file $output_file already exists. Overwrite? [y/N]: " choice
   case "$choice" in
     y|Y )
       echo "Overwriting the existing file..."
       : > "$output_file"  # Clear the file
       ;;
-    n|N )
-      echo "Keeping the existing file. Exiting."
-      exit 0
-      ;;
     * )
-      echo "Invalid choice. Exiting."
-      exit 1
+      echo "✅ Keeping existing file."
+      exit 0
       ;;
   esac
 else

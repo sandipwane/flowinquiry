@@ -1,8 +1,14 @@
 #!/bin/bash
 
-# Prompt user for sensitive data
-read -sp "Enter your database password: " db_password
+# Prompt user for sensitive data (auto-generate if empty)
+read -sp "Enter your database password (press Enter to auto-generate): " db_password
 echo
+
+# Auto-generate password if empty
+if [ -z "$db_password" ]; then
+  db_password=$(openssl rand -base64 24 | tr -dc 'a-zA-Z0-9' | head -c 32)
+  echo "✅ Auto-generated database password"
+fi
 
 # Get the directory of the current script (scripts/)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -24,10 +30,10 @@ update_or_add() {
   # Check if the key already exists
   if grep -q "^$key=" "$file"; then
     # Key exists, overwrite the value using sed
-    sed -i.bak "s|^$key=.*|$key='$value'|" "$file"
+    sed -i.bak "s|^$key=.*|$key=$value|" "$file"
   else
     # Key doesn't exist, append the key-value pair
-    echo "$key='$value'" >> "$file"
+    echo "$key=$value" >> "$file"
   fi
 }
 

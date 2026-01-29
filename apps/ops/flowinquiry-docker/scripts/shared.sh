@@ -96,13 +96,30 @@ start_flowinquiry() {
   if [[ "$use_ssl" =~ ^[Yy]$ ]]; then
       echo "✅ Setting up with SSL (HTTPS)"
       services_file="$install_dir/services_https.yml"
-      docker compose -f "$services_file" up
+      docker compose -f "$services_file" up -d
+      echo ""
+      echo "🎉 FlowInquiry is starting!"
+      echo "📍 Access at: https://localhost"
+      echo "🔑 Default login: admin@flowinquiry.io / admin"
+      echo ""
+      echo "📋 Useful commands:"
+      echo "   View logs:    docker compose -f $services_file logs -f"
+      echo "   Stop:         docker compose -f $services_file down"
+      echo "   Restart:      docker compose -f $services_file restart"
   else
       echo "⚠️ Setting up without SSL (HTTP only)"
       services_file="$install_dir/services_http.yml"
       export HOST_IP=$(get_ip_address)
       echo "Using host IP address: $HOST_IP"
-      echo "Your service will be available at: http://$HOST_IP:1234"
-      docker compose -f "$services_file" up
+      docker compose -f "$services_file" up -d
+      echo ""
+      echo "🎉 FlowInquiry is starting!"
+      echo "📍 Access at: http://$HOST_IP:1234"
+      echo "🔑 Default login: admin@flowinquiry.io / admin"
+      echo ""
+      echo "📋 Useful commands:"
+      echo "   View logs:    docker compose -f $services_file logs -f"
+      echo "   Stop:         docker compose -f $services_file down"
+      echo "   Restart:      docker compose -f $services_file restart"
   fi
 }
