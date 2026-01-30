@@ -1,4 +1,5 @@
 ## GOAL
+[Deply project on AWS](.specs/aws-deploymen-plan.md)
 
 ## Project Structure
 - Flowinquiery is an OSS for ticket mgmt written in java spring, next js
