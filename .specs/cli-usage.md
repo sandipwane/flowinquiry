@@ -9,7 +9,7 @@
 
 ```bash
 # 1. Auth (uses fi-auth.sh script)
-source fi-auth.sh
+source apps/cli/scripts/fi-auth.sh
 
 # 2. Run commands
 bun apps/cli/src/index.ts <command> [options]
