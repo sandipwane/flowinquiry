@@ -7,6 +7,9 @@
     - mcp (we are working on this)
     - ops (docker, k8s scripts for deploying)
 
+## Key References
+- **[Dev Environment Setup](.specs/dev-environment.md)** - Read this when starting DB, backend, or frontend services
+
 ## GOAL
 - Add CLI to it's backend (see .specs/cli-api-parity.md)
 - Enable the app to be used by AI agents like (Claude Desktop) via mcp
