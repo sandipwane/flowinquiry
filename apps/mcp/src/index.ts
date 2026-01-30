@@ -37,9 +37,37 @@ function normalizeHttpError(error: Error): McpError | null {
   const status = Number(rest.slice(0, spaceIndex));
   if (!Number.isFinite(status)) return null;
   const body = rest.slice(spaceIndex + 1).trim();
-  return new McpError(-32002, `HTTP ${status}`, {
+
+  // Try to extract meaningful error message from JSON response
+  let errorMessage = `HTTP ${status}`;
+  let parsedBody: unknown = body;
+
+  if (body) {
+    // Find JSON in the body (format is: "statusText {json}")
+    const jsonStart = body.indexOf("{");
+    if (jsonStart !== -1) {
+      try {
+        parsedBody = JSON.parse(body.slice(jsonStart));
+        const obj = parsedBody as Record<string, unknown>;
+        // Common error message fields in APIs
+        const msg = obj.message || obj.error || obj.detail || obj.title || obj.errorMessage;
+        if (typeof msg === "string") {
+          errorMessage = `HTTP ${status}: ${msg}`;
+        } else if (typeof msg === "object" && msg !== null) {
+          errorMessage = `HTTP ${status}: ${JSON.stringify(msg)}`;
+        }
+      } catch {
+        // Not JSON, use raw body
+        errorMessage = `HTTP ${status}: ${body.slice(0, 200)}`;
+      }
+    } else {
+      errorMessage = `HTTP ${status}: ${body.slice(0, 200)}`;
+    }
+  }
+
+  return new McpError(-32002, errorMessage, {
     status,
-    body: body ? body.slice(0, 1000) : undefined,
+    body: parsedBody,
   });
 }
 

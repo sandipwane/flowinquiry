@@ -1,5 +1,5 @@
 import * as users from "../../../cli/src/commands/users";
-import { buildSchema, jsonProperty, paginationProperties, queryProperty } from "./schema";
+import { buildSchema, paginationProperties, queryProperty, userJsonSchema } from "./schema";
 import {
   asJson,
   asNumber,
@@ -27,18 +27,18 @@ export const tools: ToolDefinition[] = [
   },
   {
     name: "fi_create_user",
-    description: "Create a user",
+    description: "Create a user. Required: email",
     inputSchema: buildSchema({
-      json: jsonProperty,
-    }, ["json"]),
+      user: userJsonSchema,
+    }, ["user"]),
   },
   {
     name: "fi_update_user",
-    description: "Update a user (multipart)",
+    description: "Update a user. Include 'id' field in user object. Optional avatarPath for profile image",
     inputSchema: buildSchema({
-      json: jsonProperty,
-      avatarPath: { type: "string" },
-    }, ["json"]),
+      user: userJsonSchema,
+      avatarPath: { type: "string", description: "Local file path to avatar image (optional)" },
+    }, ["user"]),
   },
   {
     name: "fi_delete_user",
@@ -100,11 +100,11 @@ export const handlers: Record<string, ToolHandler> = {
     return users.getUser(config, userId);
   },
   async fi_create_user(args, config) {
-    const payload = asJson(args.json, "json", true);
+    const payload = asJson(args.user, "user", true);
     return users.createUser(config, payload);
   },
   async fi_update_user(args, config) {
-    const payload = asJson(args.json, "json", true);
+    const payload = asJson(args.user, "user", true);
     const avatarPath = asString(args.avatarPath, "avatarPath");
     if (avatarPath) {
       ensureFileExists(avatarPath, "avatarPath");

@@ -1,15 +1,15 @@
 import * as comments from "../../../cli/src/commands/comments";
-import { buildSchema, jsonProperty } from "./schema";
+import { buildSchema, commentJsonSchema } from "./schema";
 import { asJson, asNumber, asString } from "../validation";
 import type { ToolDefinition, ToolHandler } from "./types";
 
 export const tools: ToolDefinition[] = [
   {
     name: "fi_save_comment",
-    description: "Create or update comment",
+    description: "Create or update comment. For create: omit 'id'. For update: include 'id'. Required: entityType (Ticket/Project/Team/User), entityId, content",
     inputSchema: buildSchema({
-      json: jsonProperty,
-    }, ["json"]),
+      comment: commentJsonSchema,
+    }, ["comment"]),
   },
   {
     name: "fi_get_comment",
@@ -37,7 +37,7 @@ export const tools: ToolDefinition[] = [
 
 export const handlers: Record<string, ToolHandler> = {
   async fi_save_comment(args, config) {
-    const payload = asJson(args.json, "json", true);
+    const payload = asJson(args.comment, "comment", true);
     return comments.saveComment(config, payload);
   },
   async fi_get_comment(args, config) {

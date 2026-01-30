@@ -1,5 +1,5 @@
 import * as teams from "../../../cli/src/commands/teams";
-import { buildSchema, jsonProperty, paginationProperties, queryProperty } from "./schema";
+import { buildSchema, paginationProperties, queryProperty, teamJsonSchema } from "./schema";
 import {
   asJson,
   asNumber,
@@ -28,19 +28,19 @@ export const tools: ToolDefinition[] = [
   },
   {
     name: "fi_create_team",
-    description: "Create team (multipart)",
+    description: "Create team. Required: name. Optional logoPath for team logo image",
     inputSchema: buildSchema({
-      json: jsonProperty,
-      logoPath: { type: "string" },
-    }, ["json"]),
+      team: teamJsonSchema,
+      logoPath: { type: "string", description: "Local file path to team logo image (optional)" },
+    }, ["team"]),
   },
   {
     name: "fi_update_team",
-    description: "Update team (multipart)",
+    description: "Update team. Include 'id' in team object. Optional logoPath for team logo image",
     inputSchema: buildSchema({
-      json: jsonProperty,
-      logoPath: { type: "string" },
-    }, ["json"]),
+      team: teamJsonSchema,
+      logoPath: { type: "string", description: "Local file path to team logo image (optional)" },
+    }, ["team"]),
   },
   {
     name: "fi_delete_team",
@@ -123,7 +123,7 @@ export const handlers: Record<string, ToolHandler> = {
     return teams.getTeam(config, teamId);
   },
   async fi_create_team(args, config) {
-    const payload = asJson(args.json, "json", true);
+    const payload = asJson(args.team, "team", true);
     const logoPath = asString(args.logoPath, "logoPath");
     if (logoPath) {
       ensureFileExists(logoPath, "logoPath");
@@ -131,7 +131,7 @@ export const handlers: Record<string, ToolHandler> = {
     return teams.createTeam(config, payload, logoPath);
   },
   async fi_update_team(args, config) {
-    const payload = asJson(args.json, "json", true);
+    const payload = asJson(args.team, "team", true);
     const logoPath = asString(args.logoPath, "logoPath");
     if (logoPath) {
       ensureFileExists(logoPath, "logoPath");

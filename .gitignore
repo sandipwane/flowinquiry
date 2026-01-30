@@ -175,3 +175,4 @@ apps/backend/server/bin
 apps/backend/tools/liquibase/bin
 apps/frontend/.env.local.backup
 apps/cli/.openapi/
+apps/mcp/dist/

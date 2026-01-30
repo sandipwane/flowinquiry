@@ -13,6 +13,7 @@
 ## Key References
 - **[Dev Environment Setup](.specs/dev-environment.md)** - Read this when starting DB, backend, or frontend services
 - **[CLI Usage Guide](.specs/cli-usage.md)** - Build, auth, and use the fi CLI
+- **[MCP Token Setup](.specs/mcp-token-setup.md)** - Generate token and configure Claude Desktop
 
 
 

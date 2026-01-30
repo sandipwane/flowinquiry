@@ -1,5 +1,5 @@
 import * as authorities from "../../../cli/src/commands/authorities";
-import { buildSchema, jsonProperty, paginationProperties } from "./schema";
+import { buildSchema, paginationProperties, authorityJsonSchema } from "./schema";
 import { asJson, asNumber, asNumberArray, asString } from "../validation";
 import { buildPagination } from "./utils";
 import type { ToolDefinition, ToolHandler } from "./types";
@@ -7,69 +7,69 @@ import type { ToolDefinition, ToolHandler } from "./types";
 export const tools: ToolDefinition[] = [
   {
     name: "fi_create_authority",
-    description: "Create authority",
+    description: "Create authority/role. Required: name",
     inputSchema: buildSchema({
-      json: jsonProperty,
-    }, ["json"]),
+      authority: authorityJsonSchema,
+    }, ["authority"]),
   },
   {
     name: "fi_list_authorities",
-    description: "List authorities",
+    description: "List all authorities/roles with pagination",
     inputSchema: buildSchema({
       ...paginationProperties,
     }),
   },
   {
     name: "fi_get_authority",
-    description: "Get authority",
+    description: "Get authority/role by name",
     inputSchema: buildSchema({
-      name: { type: "string" },
+      name: { type: "string", description: "Authority name (e.g., 'ROLE_ADMIN')" },
     }, ["name"]),
   },
   {
     name: "fi_delete_authority",
-    description: "Delete authority",
+    description: "Delete authority/role",
     inputSchema: buildSchema({
-      id: { type: "string" },
+      id: { type: "string", description: "Authority ID to delete" },
     }, ["id"]),
   },
   {
     name: "fi_list_authority_users",
-    description: "List users in authority",
+    description: "List users assigned to an authority/role",
     inputSchema: buildSchema({
-      name: { type: "string" },
+      name: { type: "string", description: "Authority name" },
       ...paginationProperties,
     }, ["name"]),
   },
   {
     name: "fi_search_users_not_in_authority",
-    description: "Search users not in authority",
+    description: "Search users not assigned to an authority",
     inputSchema: buildSchema({
-      name: { type: "string" },
-      term: { type: "string" },
+      name: { type: "string", description: "Authority name" },
+      term: { type: "string", description: "Search term (name or email)" },
     }, ["name", "term"]),
   },
   {
     name: "fi_add_users_to_authority",
-    description: "Add users to authority",
+    description: "Add users to an authority/role",
     inputSchema: buildSchema({
-      name: { type: "string" },
-      userIds: { type: "array", items: { type: "number" } },
+      name: { type: "string", description: "Authority name" },
+      userIds: { type: "array", items: { type: "number" }, description: "Array of user IDs to add" },
     }, ["name", "userIds"]),
   },
   {
     name: "fi_remove_user_from_authority",
-    description: "Remove user from authority",
+    description: "Remove user from an authority/role",
     inputSchema: buildSchema({
-      name: { type: "string" },
-      userId: { type: "number" },
+      name: { type: "string", description: "Authority name" },
+      userId: { type: "number", description: "User ID to remove" },
     }, ["name", "userId"]),
   },
 ];
 
 export const handlers: Record<string, ToolHandler> = {
   async fi_create_authority(args, config) {
-    const payload = asJson(args.json, "json", true);
+    const payload = asJson(args.authority, "authority", true);
     return authorities.createAuthority(config, payload);
   },
   async fi_list_authorities(args, config) {

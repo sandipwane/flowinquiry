@@ -1,37 +1,41 @@
 import * as appSettings from "../../../cli/src/commands/appSettings";
-import { buildSchema, jsonProperty } from "./schema";
+import { buildSchema, appSettingJsonSchema } from "./schema";
 import { asJson, asString } from "../validation";
 import type { ToolDefinition, ToolHandler } from "./types";
 
 export const tools: ToolDefinition[] = [
   {
     name: "fi_get_setting",
-    description: "Get setting by key",
+    description: "Get application setting by key",
     inputSchema: buildSchema({
-      key: { type: "string" },
+      key: { type: "string", description: "Setting key" },
     }, ["key"]),
   },
   {
     name: "fi_list_settings",
-    description: "List settings",
+    description: "List application settings, optionally filtered by group",
     inputSchema: buildSchema({
-      group: { type: "string" },
+      group: { type: "string", description: "Optional setting group to filter by" },
     }),
   },
   {
     name: "fi_update_settings",
-    description: "Update settings",
+    description: "Update multiple application settings at once",
     inputSchema: buildSchema({
-      json: jsonProperty,
-    }, ["json"]),
+      settings: {
+        type: "array",
+        items: appSettingJsonSchema,
+        description: "Array of settings to update",
+      },
+    }, ["settings"]),
   },
   {
     name: "fi_update_setting",
-    description: "Update setting by key",
+    description: "Update a single application setting by key",
     inputSchema: buildSchema({
-      key: { type: "string" },
-      json: jsonProperty,
-    }, ["key", "json"]),
+      key: { type: "string", description: "Setting key to update" },
+      setting: appSettingJsonSchema,
+    }, ["key", "setting"]),
   },
 ];
 
@@ -45,12 +49,12 @@ export const handlers: Record<string, ToolHandler> = {
     return appSettings.listSettings(config, group);
   },
   async fi_update_settings(args, config) {
-    const payload = asJson(args.json, "json", true);
+    const payload = asJson(args.settings, "settings", true);
     return appSettings.updateSettings(config, payload);
   },
   async fi_update_setting(args, config) {
     const key = asString(args.key, "key", true) as string;
-    const payload = asJson(args.json, "json", true);
+    const payload = asJson(args.setting, "setting", true);
     return appSettings.updateSetting(config, key, payload);
   },
 };

@@ -1,5 +1,5 @@
 import * as workflows from "../../../cli/src/commands/workflows";
-import { buildSchema, jsonProperty, paginationProperties, queryProperty } from "./schema";
+import { buildSchema, paginationProperties, queryProperty, workflowJsonSchema, workflowDetailedJsonSchema } from "./schema";
 import { asBoolean, asJson, asNumber } from "../validation";
 import { buildPagination, buildQuery } from "./utils";
 import type { ToolDefinition, ToolHandler } from "./types";
@@ -7,7 +7,7 @@ import type { ToolDefinition, ToolHandler } from "./types";
 export const tools: ToolDefinition[] = [
   {
     name: "fi_search_workflows",
-    description: "Search workflows",
+    description: "Search workflows with pagination and filters",
     inputSchema: buildSchema({
       ...paginationProperties,
       query: queryProperty,
@@ -15,111 +15,111 @@ export const tools: ToolDefinition[] = [
   },
   {
     name: "fi_get_workflow",
-    description: "Get workflow",
+    description: "Get workflow by ID",
     inputSchema: buildSchema({
-      workflowId: { type: "number" },
+      workflowId: { type: "number", description: "Workflow ID" },
     }, ["workflowId"]),
   },
   {
     name: "fi_update_workflow",
-    description: "Update workflow",
+    description: "Update workflow basic info. Include 'id' in workflow object",
     inputSchema: buildSchema({
-      workflowId: { type: "number" },
-      json: jsonProperty,
-    }, ["workflowId", "json"]),
+      workflowId: { type: "number", description: "Workflow ID to update" },
+      workflow: workflowJsonSchema,
+    }, ["workflowId", "workflow"]),
   },
   {
     name: "fi_delete_workflow",
     description: "Delete workflow",
     inputSchema: buildSchema({
-      workflowId: { type: "number" },
+      workflowId: { type: "number", description: "Workflow ID to delete" },
     }, ["workflowId"]),
   },
   {
     name: "fi_list_team_workflows",
-    description: "List workflows for a team",
+    description: "List workflows available for a team",
     inputSchema: buildSchema({
-      teamId: { type: "number" },
-      usedForProject: { type: "boolean" },
+      teamId: { type: "number", description: "Team ID" },
+      usedForProject: { type: "boolean", description: "Filter for project workflows only" },
     }, ["teamId"]),
   },
   {
     name: "fi_remove_workflow_from_team",
-    description: "Remove workflow from team",
+    description: "Remove/unlink workflow from team",
     inputSchema: buildSchema({
-      workflowId: { type: "number" },
-      teamId: { type: "number" },
+      workflowId: { type: "number", description: "Workflow ID" },
+      teamId: { type: "number", description: "Team ID" },
     }, ["workflowId", "teamId"]),
   },
   {
     name: "fi_list_global_workflows_not_linked",
-    description: "List global workflows not linked to team",
+    description: "List global/public workflows not yet linked to a team",
     inputSchema: buildSchema({
-      teamId: { type: "number" },
+      teamId: { type: "number", description: "Team ID" },
     }, ["teamId"]),
   },
   {
     name: "fi_list_workflow_transitions",
-    description: "List valid transitions",
+    description: "List valid state transitions from a given state",
     inputSchema: buildSchema({
-      workflowId: { type: "number" },
-      stateId: { type: "number" },
-      includeSelf: { type: "boolean" },
+      workflowId: { type: "number", description: "Workflow ID" },
+      stateId: { type: "number", description: "Current state ID" },
+      includeSelf: { type: "boolean", description: "Include transition to same state" },
     }, ["workflowId", "stateId"]),
   },
   {
     name: "fi_list_workflow_initial_states",
-    description: "List workflow initial states",
+    description: "List initial/starting states for a workflow",
     inputSchema: buildSchema({
-      workflowId: { type: "number" },
+      workflowId: { type: "number", description: "Workflow ID" },
     }, ["workflowId"]),
   },
   {
     name: "fi_get_team_project_workflow",
-    description: "Get project workflow for team",
+    description: "Get the project workflow configured for a team",
     inputSchema: buildSchema({
-      teamId: { type: "number" },
+      teamId: { type: "number", description: "Team ID" },
     }, ["teamId"]),
   },
   {
     name: "fi_get_workflow_details",
-    description: "Get workflow details",
+    description: "Get workflow with states and transitions",
     inputSchema: buildSchema({
-      workflowId: { type: "number" },
+      workflowId: { type: "number", description: "Workflow ID" },
     }, ["workflowId"]),
   },
   {
     name: "fi_create_workflow_details",
-    description: "Create workflow with details",
+    description: "Create workflow with states and transitions. Required: name, states array, transitions array",
     inputSchema: buildSchema({
-      json: jsonProperty,
-    }, ["json"]),
+      workflow: workflowDetailedJsonSchema,
+    }, ["workflow"]),
   },
   {
     name: "fi_update_workflow_details",
-    description: "Update workflow details",
+    description: "Update workflow with states and transitions. Include 'id' in workflow object",
     inputSchema: buildSchema({
-      workflowId: { type: "number" },
-      json: jsonProperty,
-    }, ["workflowId", "json"]),
+      workflowId: { type: "number", description: "Workflow ID to update" },
+      workflow: workflowDetailedJsonSchema,
+    }, ["workflowId", "workflow"]),
   },
   {
     name: "fi_create_workflow_reference",
-    description: "Create workflow by reference",
+    description: "Create workflow by referencing an existing one (shares states/transitions)",
     inputSchema: buildSchema({
-      refId: { type: "number" },
-      teamId: { type: "number" },
-      json: jsonProperty,
-    }, ["refId", "teamId", "json"]),
+      refId: { type: "number", description: "Reference workflow ID to link to" },
+      teamId: { type: "number", description: "Team ID for new workflow" },
+      workflow: workflowJsonSchema,
+    }, ["refId", "teamId", "workflow"]),
   },
   {
     name: "fi_create_workflow_clone",
-    description: "Create workflow by cloning",
+    description: "Create workflow by cloning an existing one (copies states/transitions)",
     inputSchema: buildSchema({
-      cloneId: { type: "number" },
-      teamId: { type: "number" },
-      json: jsonProperty,
-    }, ["cloneId", "teamId", "json"]),
+      cloneId: { type: "number", description: "Source workflow ID to clone from" },
+      teamId: { type: "number", description: "Team ID for new workflow" },
+      workflow: workflowJsonSchema,
+    }, ["cloneId", "teamId", "workflow"]),
   },
 ];
 
@@ -135,7 +135,7 @@ export const handlers: Record<string, ToolHandler> = {
   },
   async fi_update_workflow(args, config) {
     const workflowId = asNumber(args.workflowId, "workflowId", true) as number;
-    const payload = asJson(args.json, "json", true);
+    const payload = asJson(args.workflow, "workflow", true);
     return workflows.updateWorkflow(config, workflowId, payload);
   },
   async fi_delete_workflow(args, config) {
@@ -175,24 +175,24 @@ export const handlers: Record<string, ToolHandler> = {
     return workflows.getWorkflowDetail(config, workflowId);
   },
   async fi_create_workflow_details(args, config) {
-    const payload = asJson(args.json, "json", true);
+    const payload = asJson(args.workflow, "workflow", true);
     return workflows.createWorkflowDetail(config, payload);
   },
   async fi_update_workflow_details(args, config) {
     const workflowId = asNumber(args.workflowId, "workflowId", true) as number;
-    const payload = asJson(args.json, "json", true);
+    const payload = asJson(args.workflow, "workflow", true);
     return workflows.updateWorkflowDetail(config, workflowId, payload);
   },
   async fi_create_workflow_reference(args, config) {
     const refId = asNumber(args.refId, "refId", true) as number;
     const teamId = asNumber(args.teamId, "teamId", true) as number;
-    const payload = asJson(args.json, "json", true);
+    const payload = asJson(args.workflow, "workflow", true);
     return workflows.createWorkflowReference(config, refId, teamId, payload);
   },
   async fi_create_workflow_clone(args, config) {
     const cloneId = asNumber(args.cloneId, "cloneId", true) as number;
     const teamId = asNumber(args.teamId, "teamId", true) as number;
-    const payload = asJson(args.json, "json", true);
+    const payload = asJson(args.workflow, "workflow", true);
     return workflows.createWorkflowClone(config, cloneId, teamId, payload);
   },
 };

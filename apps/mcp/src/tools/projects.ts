@@ -1,5 +1,5 @@
 import * as projects from "../../../cli/src/commands/projects";
-import { buildSchema, jsonProperty, paginationProperties, queryProperty } from "./schema";
+import { buildSchema, paginationProperties, queryProperty, projectJsonSchema } from "./schema";
 import { asJson, asNumber, asString } from "../validation";
 import { buildPagination, buildQuery } from "./utils";
 import type { ToolDefinition, ToolHandler } from "./types";
@@ -23,18 +23,18 @@ export const tools: ToolDefinition[] = [
   },
   {
     name: "fi_create_project",
-    description: "Create project",
+    description: "Create project. Required: name, shortName, teamId",
     inputSchema: buildSchema({
-      json: jsonProperty,
-    }, ["json"]),
+      project: projectJsonSchema,
+    }, ["project"]),
   },
   {
     name: "fi_update_project",
-    description: "Update project",
+    description: "Update project. Include 'id' field in project object",
     inputSchema: buildSchema({
-      projectId: { type: "number" },
-      json: jsonProperty,
-    }, ["projectId", "json"]),
+      projectId: { type: "number", description: "Project ID to update" },
+      project: projectJsonSchema,
+    }, ["projectId", "project"]),
   },
   {
     name: "fi_delete_project",
@@ -95,12 +95,12 @@ export const handlers: Record<string, ToolHandler> = {
     return projects.getProject(config, projectId);
   },
   async fi_create_project(args, config) {
-    const payload = asJson(args.json, "json", true);
+    const payload = asJson(args.project, "project", true);
     return projects.createProject(config, payload);
   },
   async fi_update_project(args, config) {
     const projectId = asNumber(args.projectId, "projectId", true) as number;
-    const payload = asJson(args.json, "json", true);
+    const payload = asJson(args.project, "project", true);
     return projects.updateProject(config, projectId, payload);
   },
   async fi_delete_project(args, config) {

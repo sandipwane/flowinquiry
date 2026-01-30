@@ -1,6 +1,6 @@
 import * as tickets from "../../../cli/src/commands/tickets";
 import { parsePriority } from "../../../cli/src/utils";
-import { buildSchema, jsonProperty, paginationProperties, queryProperty } from "./schema";
+import { buildSchema, paginationProperties, queryProperty, ticketJsonSchema } from "./schema";
 import {
   asJson,
   asNumber,
@@ -44,11 +44,11 @@ export const tools: ToolDefinition[] = [
   },
   {
     name: "fi_update_ticket",
-    description: "Update ticket",
+    description: "Update ticket. IMPORTANT: Requires FULL ticket object. Pattern: 1) GET ticket with fi_get_ticket, 2) Modify fields, 3) Send complete object. Required fields: id, teamId, workflowId, requestTitle, priority, isNew, isCompleted",
     inputSchema: buildSchema({
-      ticketId: { type: "number" },
-      json: jsonProperty,
-    }, ["ticketId", "json"]),
+      ticketId: { type: "number", description: "Ticket ID to update" },
+      ticket: ticketJsonSchema,
+    }, ["ticketId", "ticket"]),
   },
   {
     name: "fi_delete_ticket",
@@ -207,7 +207,7 @@ export const handlers: Record<string, ToolHandler> = {
   },
   async fi_update_ticket(args, config) {
     const ticketId = asNumber(args.ticketId, "ticketId", true) as number;
-    const payload = asJson(args.json, "json", true);
+    const payload = asJson(args.ticket, "ticket", true);
     return tickets.updateTicket(config, ticketId, payload);
   },
   async fi_delete_ticket(args, config) {
