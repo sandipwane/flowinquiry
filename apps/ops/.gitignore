@@ -6,3 +6,12 @@ flowinquiry-docker/volumes
 flowinquiry-k8s/app/build
 flowinquiry-k8s/.gradle
 flowinquiry-k8s/build
+
+# Terraform
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/.terraform.lock.hcl
+terraform/*.pem
+terraform/terraform.tfvars
+terraform/*.auto.tfvars
