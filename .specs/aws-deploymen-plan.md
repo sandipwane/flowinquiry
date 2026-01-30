@@ -14,8 +14,8 @@ Deploy the full Flowinquiry stack (frontend, backend, database, MCP, CLI integra
 
 ## Required security group ports
 - 22/tcp: SSH (restrict to your IP).
-- 80/tcp: HTTP (if Caddy serves HTTP).
-- 443/tcp: HTTPS (if Caddy serves TLS).
+- 1234/tcp: HTTP mode (services_http.yml).
+- 443/tcp: HTTPS mode (services_https.yml).
 
 Do not expose database ports publicly. Use SSH tunneling if admin access is required.
 
@@ -23,6 +23,15 @@ Do not expose database ports publicly. Use SSH tunneling if admin access is requ
 Caddy's default ACME TLS needs a public domain. With no domain:
 - Use HTTP only on port 80, or
 - Use internal TLS via `tls internal` in the Caddyfile.
+
+## Port mappings
+- HTTP mode (`services_http.yml`): host `1234` → container `80`
+- HTTPS mode (`services_https.yml`): host `443` → container `443`
+
+## Prerequisites on instance
+- Docker + Docker Compose v2
+- Bun (for building fi-mcp)
+- CHAI Universe binary (MCP host)
 
 ## Deployment plan
 
@@ -34,7 +43,7 @@ Caddy's default ACME TLS needs a public domain. With no domain:
 
 ### Step B — Provision AWS resources
 - Create a new key pair.
-- Create a security group with ports 22/80/443.
+- Create a security group with ports 22/1234/443.
 - Launch EC2 instance:
   - AMI: Ubuntu latest LTS (22.04 LTS unless 24.04 is approved)
   - Instance type: `t3.medium`
@@ -47,31 +56,51 @@ Caddy's default ACME TLS needs a public domain. With no domain:
 - Update OS packages.
 - Install Docker and Docker Compose (v2 plugin).
 - Add `ubuntu` user to `docker` group.
-- Optional: enable UFW for 22/80/443.
+- Optional: enable UFW for 22/1234/443.
 
 ### Step D — Deploy application
 - Clone repo onto instance.
-- Securely copy `.env` to instance.
-- Set file permissions on secrets.
+- Securely copy `.env` to instance (or create from template).
+- Set file permissions on secrets (`chmod 600 .env .backend.env .frontend.env`).
 - Update compose/Caddy config for:
   - TLS mode (HTTP or internal TLS)
-  - MCP/CLI env vars
   - Persistent volumes
-- Start services with docker compose.
+- Note: Compose files are `services_http.yml` / `services_https.yml`.
+- Start services:
+  ```bash
+  cd ~/flowinquiry/apps/ops/flowinquiry-docker
+  docker compose -f services_http.yml up -d
+  ```
+- Verify all containers running: `docker compose -f services_http.yml ps`
 
 ### Step E — Configure CLI and MCP
 - Configure CLI to point to deployed backend.
-- Validate MCP service is running and reachable.
-- If auth tokens or config files are needed, place them from local environment.
+- Install Bun runtime:
+  ```bash
+  curl -fsSL https://bun.sh/install | bash
+  source ~/.bashrc
+  ```
+- Build fi-mcp on instance:
+  ```bash
+  cd ~/flowinquiry/apps/mcp
+  bun install
+  bun run build
+  ```
+- Install CHAI Universe (MCP host binary).
+- Configure CHAI Universe with fi-mcp:
+  - Binary path: `~/flowinquiry/apps/mcp/dist/fi-mcp`
+  - Env: `FLOWINQUIRY_BASE_URL=http://localhost:8080`
+  - Env: `FLOWINQUIRY_TOKEN=<jwt_token_from_auth>`
+- Note: fi-mcp connects to backend internally via localhost, bypassing Caddy.
 
 ### Step F — Validate
 - Check container status and logs.
 - Verify:
   - Frontend reachable via instance IP
-  - Backend health endpoint responds
+  - Backend health endpoint responds (`curl http://localhost:8080/api/actuator/health`)
   - DB running and initialized
-  - MCP endpoints reachable
-  - CLI can authenticate and run a basic command
+  - fi-mcp responds via CHAI Universe (test `tools/list` JSON-RPC call)
+  - CLI can authenticate and run a basic command (`fi auth login`, `fi me`)
 
 ### Step G — Hardening and handoff
 - Ensure docker services start on reboot.
