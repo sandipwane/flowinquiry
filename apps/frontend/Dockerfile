@@ -33,6 +33,10 @@ COPY --from=deps /app ./
 # Next.js collects completely anonymous telemetry data about general usage.
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Build arg for backend URL (used in rewrites)
+ARG BACK_END_URL=http://back-end:8080
+ENV BACK_END_URL=${BACK_END_URL}
+
 # Build the frontend app
 RUN cd apps/frontend && pnpm run build
 

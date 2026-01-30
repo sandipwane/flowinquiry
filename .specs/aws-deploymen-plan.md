@@ -3,6 +3,10 @@
 ## Goal
 Deploy the full Flowinquiry stack (frontend, backend, database, MCP, CLI integration, Caddy) to a single EC2 instance in `us-east-1`, using Docker/Compose, no public domain, and environment secrets from local `.env`. The result should be easy for a customer to replicate in a federal AWS environment.
 
+## Note
+- You have access to aws cli
+- you can use default profile for it. Account ID 295686087219 
+
 ## Instance sizing recommendation
 - Default: `t3.medium` (2 vCPU, 4 GB RAM) for balanced POC.
 - Low-cost minimal: `t3.small` (2 vCPU, 2 GB RAM); risk of memory pressure.
