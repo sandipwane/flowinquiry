@@ -1,5 +1,4 @@
 ## GOAL
-- [Add CLI <> MCP Parity](.specs/cli-mcp-v2.md)
 
 ## Project Structure
 - Flowinquiery is an OSS for ticket mgmt written in java spring, next js
