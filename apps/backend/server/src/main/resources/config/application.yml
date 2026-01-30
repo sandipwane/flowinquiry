@@ -108,6 +108,15 @@ spring:
   output:
     ansi:
       console-available: true
+  # Spring AI MCP Server Configuration
+  # Exposes FlowInquiry services as MCP tools for AI assistants
+  ai:
+    mcp:
+      server:
+        enabled: true
+        name: flowinquiry-mcp
+        version: 1.0.0
+        sse-message-endpoint: /mcp/messages
 
 server:
   servlet:

@@ -24,6 +24,7 @@ dependencies {
     api(libs.bundles.json)
     api(libs.bundles.shedlock)
     api(libs.bundles.spring.ai)
+    api(libs.bundles.spring.ai.mcp)
     api(libs.bundles.springdoc.openapi)
     api(libs.hypersistence)
     api(libs.redis.hibernate)
