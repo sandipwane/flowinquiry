@@ -22,8 +22,31 @@ export async function getUser(config: CliConfig, userId: number) {
   return request<UserDTO>("GET", `/api/users/${userId}`, config);
 }
 
+/**
+ * HACK/TEMPORARY: Backend user create endpoint ignores password field.
+ * Workaround: If password provided, we auto-call reset-password-finish
+ * using the resetKey from the created user response.
+ * TODO: Remove this once backend supports password in user creation.
+ */
 export async function createUser(config: CliConfig, payload: unknown) {
-  return request<UserDTO>("POST", "/api/users", config, payload);
+  const inputPayload = payload as Record<string, unknown>;
+
+  // Extract password if provided (backend ignores it during creation)
+  const password = inputPayload.password as string | undefined;
+  const { password: _, ...createPayload } = inputPayload;
+
+  // Create user
+  const user = await request<UserDTO>("POST", "/api/users", config, createPayload);
+
+  // Auto-set password via reset flow if password provided and resetKey exists
+  if (password && user.resetKey) {
+    await request<void>("POST", "/api/account/reset-password/finish", config, {
+      key: user.resetKey,
+      newPassword: password,
+    });
+  }
+
+  return user;
 }
 
 export async function updateUser(
