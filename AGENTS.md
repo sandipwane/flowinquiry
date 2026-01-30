@@ -9,6 +9,7 @@
 
 ## Key References
 - **[Dev Environment Setup](.specs/dev-environment.md)** - Read this when starting DB, backend, or frontend services
+- **[CLI Usage Guide](.specs/cli-usage.md)** - Build, auth, and use the fi CLI
 
 ## GOAL
 - Add CLI to it's backend (see .specs/cli-api-parity.md)

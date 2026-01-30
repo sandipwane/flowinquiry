@@ -31,6 +31,23 @@ export async function updateUser(
   payload: unknown,
   avatarPath?: string,
 ) {
+  const inputPayload = payload as Record<string, unknown>;
+
+  // If id is provided, fetch existing user and merge to preserve required fields
+  if (inputPayload.id) {
+    const existingUser = await getUser(config, Number(inputPayload.id));
+    // Merge: existing fields as base, input payload overwrites
+    const mergedPayload = { ...existingUser, ...inputPayload };
+
+    const form = new FormData();
+    appendJsonPart(form, "userDTO", mergedPayload);
+    if (avatarPath) {
+      await appendFile(form, "file", avatarPath);
+    }
+    return request<UserDTO>("PUT", "/api/users", config, form);
+  }
+
+  // No id - send as-is (will likely fail, but let backend validate)
   const form = new FormData();
   appendJsonPart(form, "userDTO", payload);
   if (avatarPath) {
