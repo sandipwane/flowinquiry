@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh pr view:*)",
+      "Bash(gh pr diff:*)",
+      "Bash(docker compose:*)",
+      "Bash(docker ps:*)",
+      "Bash(ls:*)",
+      "Bash(bun:*)",
+      "Bash(/Users/sandipwane/workspace/flowinquiry/apps/mcp/dist/fi-mcp:*)",
+      "Bash(docker logs:*)",
+      "Bash(docker exec:*)",
+      "Bash(curl:*)",
+      "Bash(git add:*)",
+      "Bash(brew install:*)"
+    ]
+  }
+}
