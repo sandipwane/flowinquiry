@@ -92,6 +92,11 @@ Before editing, check compatibility of all build tooling with the target Java ve
 - Ensure JaCoCo version supports the target Java version
 - Check `toolVersion` in build.gradle JaCoCo config
 
+**Jib (Docker image builder):**
+- Jib uses ASM internally — old versions can't read new Java class file major versions
+- Check latest Jib Gradle plugin: `gh api repos/GoogleContainerTools/jib/releases --jq '[.[] | select(.tag_name | startswith("v")) | select(.tag_name | contains("gradle")) | .tag_name][0]'`
+- Check current version in `libs.versions.toml` or `buildSrc/build.gradle`
+
 Present compatibility findings to user before proceeding. Example:
 
 ```
@@ -100,6 +105,7 @@ Present compatibility findings to user before proceeding. Example:
 | Gradle | 8.14.2 | >= 9.1.0 | Upgrade wrapper |
 | google-java-format | 1.19.1 | 1.25.0 | Update in libs.versions.toml |
 | JaCoCo | 0.8.11 | 0.8.13+ | Update toolVersion |
+| Jib | 3.4.4 | 3.5.3+ | Update — ASM can't read major version 69 |
 ```
 
 ### 4. Apply — edit each file
@@ -144,14 +150,42 @@ JAVA_HOME=$(/usr/libexec/java_home -v <version>) mvn clean verify         # Mave
 
 **Common Java class file major versions:** Java 21=65, 22=66, 23=67, 24=68, 25=69
 
-### 6. Report — summarize changes
+### 6. Docker verification (optional)
+
+Ask the user: "Would you like to build and verify the Docker image with the new Java version?"
+
+If yes:
+
+**Build the Docker image:**
+```bash
+JAVA_HOME=$(/usr/libexec/java_home -v <version>) ./gradlew :apps:backend:server:jibDockerBuild  # Jib
+# or: docker build -t <image> .                                                                   # Dockerfile
+```
+
+**Troubleshooting:**
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `Unsupported class file major version XX` from Jib | Jib's ASM can't read new class files | Update Jib plugin version (see step 3) |
+| Base image not found (e.g. `eclipse-temurin:25-jre`) | Image tag doesn't exist yet on Docker Hub | Check Docker Hub for available tags, use `-jdk` if `-jre` unavailable |
+
+**Verify the container runs with the target JDK:**
+```bash
+docker run --rm <image>:<tag> java -version
+```
+
+Expected: the container should report the target Java version. The app itself may fail to start without a database — that's expected. What matters is Java version confirmation.
+
+### 7. Report — summarize changes
 
 List all files modified and include:
 - Java version change (OLD → NEW)
 - Gradle version change (if any)
 - Spotless / google-java-format version change (if any)
 - JaCoCo version change (if any)
+- Jib version change (if any)
 - Auto-reformatted files from `spotlessApply` (if any)
+- Docker image verification result (if performed)
 - `JAVA_HOME` setup instructions for the user's local environment
 
 Flag anything needing manual attention:
