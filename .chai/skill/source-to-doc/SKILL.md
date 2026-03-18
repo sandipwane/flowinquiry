@@ -11,13 +11,13 @@ Generate architecture documentation from source code repositories as a Markdown 
 
 ### Step 1: Gather Context
 
-Assume defaults and proceed without asking the user:
-- **Audience**: Engineering team
-- **Depth**: Moderate depth
-- **Focus areas**: Full repo coverage
-- **Exclusions**: Vendor code, generated files, test fixtures
+Before scanning, clarify with the user:
+- **Audience**: Engineering team? Leadership? New hires?
+- **Depth**: High-level overview or deep technical dive?
+- **Focus areas**: Specific systems, services, or modules to prioritize?
+- **Exclusions**: Areas to skip (vendor code, generated files, test fixtures)?
 
-Do NOT ask the user questions before scanning. Start scanning immediately.
+Default: engineering audience, moderate depth, full repo coverage.
 
 ### Step 2: Scan Repository
 
