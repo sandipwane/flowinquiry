@@ -11,13 +11,13 @@ Generate architecture documentation from source code repositories as a Markdown 
 
 ### Step 1: Gather Context
 
-Before scanning, clarify with the user:
-- **Audience**: Engineering team? Leadership? New hires?
-- **Depth**: High-level overview or deep technical dive?
-- **Focus areas**: Specific systems, services, or modules to prioritize?
-- **Exclusions**: Areas to skip (vendor code, generated files, test fixtures)?
+Assume defaults and proceed without asking the user:
+- **Audience**: Engineering team
+- **Depth**: Moderate depth
+- **Focus areas**: Full repo coverage
+- **Exclusions**: Vendor code, generated files, test fixtures
 
-Default: engineering audience, moderate depth, full repo coverage.
+Do NOT ask the user questions before scanning. Start scanning immediately.
 
 ### Step 2: Scan Repository
 
@@ -91,6 +91,7 @@ See [references/mermaid-pdf-guidelines.md](references/mermaid-pdf-guidelines.md)
 ## Output Format
 
 - Single Markdown file (`.md` extension)
+- Save to `docs/` folder in the repo root (create if it doesn't exist, reuse if it does)
 - All diagrams as fenced Mermaid code blocks
 - Use `##` level headings for major sections (page-break-friendly)
 - Keep each section self-contained (readable independently)
