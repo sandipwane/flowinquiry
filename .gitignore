@@ -152,6 +152,7 @@ Desktop.ini
 /coverage/
 /.nyc_output/
 .env.local
+.env
 /docker/volumes1
 /server/build
 /tools/liquibase/build
@@ -173,3 +174,5 @@ apps/backend/commons/bin
 apps/backend/server/bin
 apps/backend/tools/liquibase/bin
 apps/frontend/.env.local.backup
+apps/cli/.openapi/
+apps/mcp/dist/
